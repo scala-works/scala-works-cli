@@ -1,0 +1,34 @@
+name: Upload Release Asset
+
+on:
+  release:
+    types:
+      - released
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: coursier/cache-action@v6.3
+      - uses: VirtusLab/scala-cli-setup@v0.1
+        with:
+          jvm: "11"
+      - name: Build project
+        env:
+          TAG : ${{ github.event.release.tag_name }}
+        run: |
+          scala-cli package . -o scala-works-cli
+          tar -czvf scala-works-cli-${TAG}-ubuntu-latest.tar.gz scala-works-cli
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG : ${{ github.event.release.tag_name }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./scala-works-cli-${TAG}-ubuntu-latest.tar.gz
+          asset_name: scala-works-cli-${TAG}-ubuntu-latest.tar.gz
+          asset_content_type: application/gzip
