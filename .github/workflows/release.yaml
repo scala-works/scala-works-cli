@@ -9,6 +9,8 @@ jobs:
   build:
     name: Upload Release Asset
     runs-on: ubuntu-latest
+    outputs:
+      tgz_file: ${{ steps.build.outputs.file }}
     steps:
       - uses: actions/checkout@v3
       - uses: coursier/cache-action@v6.3
@@ -16,11 +18,13 @@ jobs:
         with:
           jvm: "11"
       - name: Build project
+        id: build
         env:
           TAG : ${{ github.event.release.tag_name }}
         run: |
           scala-cli package . -o scala-works-cli
-          tar -czvf scala-works-cli-${TAG}-ubuntu-latest.tar.gz scala-works-cli
+          tar -czvf scala-works-cli-$TAG-ubuntu-latest.tar.gz scala-works-cli
+          echo "file=scala-works-cli-$TAG-ubuntu-latest.tar.gz" >> $GITHUB_OUTPUT
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
@@ -29,6 +33,6 @@ jobs:
           TAG : ${{ github.event.release.tag_name }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./scala-works-cli-${TAG}-ubuntu-latest.tar.gz
-          asset_name: scala-works-cli-${TAG}-ubuntu-latest.tar.gz
+          asset_path: ./${{ build.outputs.file }}
+          asset_name: ${{ build.outputs.file }}
           asset_content_type: application/gzip
