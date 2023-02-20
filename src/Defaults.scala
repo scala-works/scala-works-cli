@@ -13,6 +13,7 @@ object Defaults extends Cmd:
   override def flags: Seq[Flag[?]] = List(
     GitIgnore,
     ScalaFmt,
+    ScalaFix,
     Force,
   )
 
@@ -64,4 +65,21 @@ object Defaults extends Cmd:
           case Right(content) =>
             os.write.over(wd / ".scalafmt.conf", content)
 
+    // Download .scalafix.conf
+    if ScalaFix.isPresent(args) then
+      println("Downloading .scalafix.conf...")
+      if os.exists(wd / ".scalafix.conf") && !shouldForce then
+        println(
+          s".scalafix.conf exists! use -${ Force.shortKey } or --${ Force.name } to overwrite.",
+        )
+      else
+        val _url     = gitRoot.addPath(".scalafix.conf")
+        val request  = basicRequest.get(_url).followRedirects(true)
+        val response = client.send(request)
+        response.body match
+          case Left(err)      =>
+            println(s"There was an error downloading $_url!")
+            println(err)
+          case Right(content) =>
+            os.write.over(wd / ".scalafix.conf", content)
     ()
