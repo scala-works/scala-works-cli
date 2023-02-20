@@ -6,4 +6,5 @@ object Main extends MultiCmdApp:
 
   override def cmdList: Seq[Cmd] = List(
     Defaults,
+    Serve,
   )

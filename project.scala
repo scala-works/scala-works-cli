@@ -1,3 +1,6 @@
 //> using scala "3.2.2"
 //> using toolkit "0.1.4"
 //> using lib "works.scala::scala-cmd::0.0.4"
+//> using lib "com.softwaremill.sttp.tapir::tapir-core::1.2.8"
+//> using lib "com.softwaremill.sttp.tapir::tapir-netty-server::1.2.8"
+//> using resourceDir "./src/resources"
